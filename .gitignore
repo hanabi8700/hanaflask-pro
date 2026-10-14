@@ -8,3 +8,11 @@ wheels/
 
 # Virtual environments
 .venv
+venv/
+env/
+
+# 環境変数・秘密情報
+.env
+.env.local
+*.key
+secrets/

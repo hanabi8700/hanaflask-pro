@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_macros.html" import pagination_nav %}
+{% block title %}ユーザー管理{% endblock %}
+
+{% block content %}
+<h1>ユーザー管理</h1>
+<p class="hint">削除フラグを付けたユーザーはログインできません。投稿はそのまま残り、「復活」でログイン可能に戻せます。</p>
+
+<table class="post-table">
+  <thead>
+    <tr>
+      <th>ID</th><th>ユーザーID</th><th>権限</th><th>状態</th>
+      <th>登録日</th><th>更新日</th><th>投稿数</th><th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in pagination.items %}
+      <tr class="{{ 'deleted' if u.is_deleted }}">
+        <td>{{ u.id }}</td>
+        <td><a href="{{ url_for('blog.index', userid=u.username) }}">{{ u.username }}</a></td>
+        <td>{{ '管理者' if u.is_admin else '一般' }}</td>
+        <td>
+          {% if u.is_deleted %}
+            <span class="badge danger">削除済み（{{ u.deleted_at | dt }}）</span>
+          {% else %}
+            <span class="badge ok">有効</span>
+          {% endif %}
+        </td>
+        <td class="nowrap">{{ u.created_at | dt }}</td>
+        <td class="nowrap">{{ u.updated_at | dt }}</td>
+        <td>{{ counts.get(u.username, 0) }}</td>
+        <td>
+          {% if u.is_deleted %}
+            <form method="post" action="{{ url_for('admin.restore_user', user_id=u.id) }}" class="inline-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="page" value="{{ pagination.page }}">
+              <button type="submit" class="btn small">復活</button>
+            </form>
+          {% elif not u.is_admin and u.id != current_user.id %}
+            <form method="post" action="{{ url_for('admin.delete_user', user_id=u.id) }}" class="inline-form"
+                  onsubmit="return confirm('このユーザーに削除フラグを付けますか？（ログイン不可になります）');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="page" value="{{ pagination.page }}">
+              <button type="submit" class="btn small danger">削除</button>
+            </form>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{{ pagination_nav(pagination, 'admin.users') }}
+{% endblock %}

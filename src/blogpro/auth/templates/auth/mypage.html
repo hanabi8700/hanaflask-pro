@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}マイページ{% endblock %}
+
+{% block content %}
+<h1>マイページ</h1>
+<div class="card">
+  <dl class="profile">
+    <dt>ユーザーID</dt>
+    <dd>{{ user.username }}{% if user.is_admin %} <span class="badge admin">管理者</span>{% endif %}</dd>
+    <dt>登録日時</dt>
+    <dd>{{ user.created_at | dt("%Y-%m-%d %H:%M:%S") }}</dd>
+    <dt>更新日時</dt>
+    <dd>{{ user.updated_at | dt("%Y-%m-%d %H:%M:%S") }}</dd>
+    <dt>投稿数</dt>
+    <dd>{{ post_count }} 件</dd>
+  </dl>
+</div>
+
+<div class="actions">
+  <a class="btn" href="{{ url_for('blog.index', userid=user.username) }}">自分の投稿一覧</a>
+  <a class="btn" href="{{ url_for('auth.change_password') }}">パスワード変更</a>
+</div>
+{% endblock %}

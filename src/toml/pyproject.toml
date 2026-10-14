@@ -1,0 +1,11 @@
+[project]
+name = "blog"
+version = "0.2.0"
+description = "Flask blog: CRUD, Markdown, image upload, search, pagination, auth/admin"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0",
+    "flask-sqlalchemy>=3.1",
+    "markdown>=3.5",
+]

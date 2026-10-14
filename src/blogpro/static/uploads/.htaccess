@@ -1,0 +1,2 @@
+# アップロード先ではスクリプトを実行させない
+Options -ExecCGI -Indexes

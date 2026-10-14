@@ -1,0 +1,28 @@
+Options +ExecCGI
+AddHandler cgi-script .cgi
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /uvblog/src/flask_app
+
+    # URLの最後を統一するためのリダイレクト_index.html
+    RewriteCond %{THE_REQUEST} ^.*/index.html
+    RewriteRule ^(.*)index.html$ https://hanamaru8700.com/uvblog/src/flask_app/$1 [R=301,L]
+    
+    # ループ防止用：両方のCGIファイル自体へのアクセスはそのまま通す
+    RewriteRule ^index\.cgi$ - [L]
+
+    # 存在するファイル（画像やCSSなど）やディレクトリはそのまま表示
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 【テスト用分岐】URLに ?mode=test が含まれている場合、すべてのアクセスを index_pre36.cgi に転送
+    RewriteCond %{QUERY_STRING} (^|&)mode=test(&|$)
+    RewriteRule ^(.*)$ index_testcgi.cgi/$1 [QSA,L]
+    RewriteCond %{QUERY_STRING} (^|&)mode=test2(&|$)
+    RewriteRule ^(.*)$ index_python310.cgi/$1 [QSA,L]
+
+    # 【通常用】それ以外のアクセスはすべて index.cgi に転送
+    RewriteRule ^(.*)$ index.cgi/$1 [QSA,L]
+</IfModule>

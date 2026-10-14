@@ -1,0 +1,17 @@
+Options +ExecCGI
+AddHandler cgi-script .py .cgi
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # index.cgi 自体への直接アクセスはループを防ぐため除外
+    RewriteRule ^index\.cgi$ - [L]
+
+    # 存在するファイル（画像やCSSなど）やディレクトリはそのまま表示
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # それ以外のアクセスはすべて index.cgi に転送
+    RewriteRule ^(.*)$ index.cgi/$1 [QSA,L]
+</IfModule>

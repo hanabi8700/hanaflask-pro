@@ -1,0 +1,59 @@
+# --- CGI 有効化 ---
+
+Options +ExecCGI -Indexes
+AddHandler cgi-script .cgi
+DirectoryIndex index.cgi
+
+# --- 本番用の環境変数（必要なものだけコメントを外す）---
+
+# SECRET_KEY は instance/secret_key.txt に書く方法でも可（どちらか必須）
+
+# SetEnv SECRET_KEY "hanaka_taiyou_blog"
+
+# HTTPS で運用する場合は有効化（HTTP のままだとログインできなくなります）
+
+# SetEnv SESSION_COOKIE_SECURE 1
+
+# --- 内部ファイルを外部から見せない（Apache 2.4）---
+
+<FilesMatch "\.(env|py|pyc|db|sqlite|sqlite3|toml|md|lock|txt)$">
+
+# Require all denied
+
+# </FilesMatch>
+
+# Apache 2.2 の場合は上の Require 行を次の2行に置き換え
+
+   Order allow,deny
+   Deny from all
+</FilesMatch>
+
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# サブフォルダに置く場合は有効化（例: <https://example.com/blog/> なら /blog/）
+
+RewriteBase /uvblog/src/blogpro
+
+# 内部ディレクトリへのアクセスを禁止
+
+RewriteRule ^(instance|templates|__pycache__)(/|$) - [F,L]
+
+# auth/ blog/ は Flask の URL（/auth/login など）と名前が重なるため、
+
+# 「実在するファイル」（.html テンプレートなど）にだけ直接アクセスを禁止する
+
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(auth|blog)/ - [F,L]
+
+# index.cgi 自身へのアクセスは書き換えない（ループ防止）
+
+# RewriteRule ^index\.cgi(/|$) - [L]
+RewriteRule ^index\.cgi$ - [L]
+
+# 実在するファイル（static など）はそのまま返し、それ以外は Flask へ
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ /index.cgi/$1 [QSA,L]
+</IfModule>

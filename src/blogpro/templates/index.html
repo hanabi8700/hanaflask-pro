@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "_macros.html" import pagination_nav %}
+{% block title %}記事一覧{% endblock %}
+
+{% block content %}
+<h1>記事一覧</h1>
+
+<form method="get" action="{{ url_for('blog.index') }}" class="search-form">
+  <input type="search" name="q" value="{{ q }}" maxlength="100"
+         placeholder="タイトル・本文のキーワード（空白区切りでAND検索）">
+  <input type="text" name="userid" value="{{ userid }}" maxlength="50"
+         class="userid-input" placeholder="userid（任意）">
+  <button type="submit" class="btn">検索</button>
+  {% if q or userid %}
+    <a class="btn secondary" href="{{ url_for('blog.index') }}">クリア</a>
+  {% endif %}
+</form>
+
+{% if q or userid %}
+  <p class="search-info">
+    検索条件:
+    {% if userid %}userid「{{ userid }}」{% endif %}
+    {% if q %}キーワード「{{ q }}」{% endif %}
+    ／ {{ pagination.total }} 件
+  </p>
+{% endif %}
+
+{% if posts %}
+  <table class="post-table">
+    <thead>
+      <tr><th>タイトル</th><th>userid</th><th>変更日</th></tr>
+    </thead>
+    <tbody>
+      {% for post in posts %}
+        <tr>
+          <td>
+            <a href="{{ url_for('blog.detail', post_id=post.id) }}">{{ post.title }}</a>
+            {% if post.image_filename %}<span class="badge" title="画像あり">🖼</span>{% endif %}
+          </td>
+          <td>
+            <a href="{{ url_for('blog.index', userid=post.userid, q=q or None) }}">{{ post.userid }}</a>
+          </td>
+          <td class="nowrap">{{ post.updated_at | dt }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {{ pagination_nav(pagination, 'blog.index', params) }}
+{% else %}
+  <p>該当する記事がありません。</p>
+{% endif %}
+{% endblock %}

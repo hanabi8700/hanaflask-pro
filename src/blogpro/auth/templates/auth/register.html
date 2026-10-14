@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import password_field %}
+{% block title %}新規登録{% endblock %}
+
+{% block content %}
+<h1>新規登録</h1>
+<form method="post" action="{{ url_for('auth.register') }}" class="auth-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="username">ユーザーID（半角英数字・_ の3〜30文字、空白不可）</label>
+  <input type="text" id="username" name="username" maxlength="30"
+         value="{{ form.get('username', '') }}" autocomplete="username" required>
+
+  {{ password_field('password', 'パスワード（8文字以上、空白不可）', 'new-password') }}
+  {{ password_field('password_confirm', 'パスワード（確認）', 'new-password') }}
+
+  <div class="actions">
+    <button type="submit" class="btn">登録する</button>
+    <a class="btn secondary" href="{{ url_for('auth.login') }}">ログインへ</a>
+  </div>
+</form>
+{% endblock %}

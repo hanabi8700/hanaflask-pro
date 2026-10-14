@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ '記事を編集' if post else '新規投稿' }}{% endblock %}
+
+{% block content %}
+<h1>{{ '記事を編集' if post else '新規投稿' }}</h1>
+
+<form method="post" enctype="multipart/form-data"
+      action="{{ url_for('blog.edit', post_id=post.id) if post else url_for('blog.create') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <p class="meta">投稿者（userid）: <strong>{{ post.userid if post else current_user.username }}</strong></p>
+
+  <label for="title">タイトル</label>
+  <input type="text" id="title" name="title" maxlength="200"
+         value="{{ form.get('title', '') }}" required>
+
+  <label for="body">本文（Markdown）</label>
+  <textarea id="body" name="body" rows="12" required>{{ form.get('body', '') }}</textarea>
+  <p class="hint">
+    使える記法: <code>**太字**</code> / <code># 見出し</code> / <code>- リスト</code> /
+    <code>&gt; 引用</code> / <code>`コード`</code> / <code>[文字](URL)</code>
+  </p>
+
+  <label for="image">画像（任意・png / jpg / gif / webp・5MBまで）</label>
+  <input type="file" id="image" name="image"
+         accept="image/png,image/jpeg,image/gif,image/webp">
+  <p class="hint">入力エラーで戻ったときは、画像をもう一度選択してください。</p>
+
+  {% if post and post.image_filename %}
+    <div class="current-image">
+      <img class="post-image small" alt="現在の画像"
+           src="{{ url_for('static', filename='uploads/' ~ post.image_filename) }}">
+      <label class="checkbox">
+        <input type="checkbox" name="delete_image" value="1"> 現在の画像を削除する
+      </label>
+    </div>
+  {% endif %}
+
+  <div class="actions">
+    <button type="submit" class="btn">{{ '更新する' if post else '投稿する' }}</button>
+    <a class="btn secondary"
+       href="{{ url_for('blog.detail', post_id=post.id) if post else url_for('blog.index') }}">キャンセル</a>
+  </div>
+</form>
+{% endblock %}

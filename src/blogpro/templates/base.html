@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Blog{% endblock %} | My Blog</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="{{ url_for('blog.index') }}">My Blog</a>
+    <nav class="nav">
+      {% if current_user %}
+        <a href="{{ url_for('blog.create') }}">新規投稿</a>
+        <a href="{{ url_for('auth.mypage') }}">マイページ</a>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('admin.users') }}">ユーザー管理</a>
+        {% endif %}
+        <form method="post" action="{{ url_for('auth.logout') }}" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="link-button">ログアウト（{{ current_user.username }}）</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">ログイン</a>
+        <a href="{{ url_for('auth.register') }}">新規登録</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', filename='js/password-toggle.js') }}"></script>
+</body>
+</html>

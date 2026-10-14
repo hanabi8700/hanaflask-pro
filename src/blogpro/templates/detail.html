@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<article class="card">
+  <h1>{{ post.title }}</h1>
+  <p class="meta">
+    <a href="{{ url_for('blog.index', userid=post.userid) }}">{{ post.userid }}</a>
+    ／ 作成: {{ post.created_at | dt }} ／ 変更: {{ post.updated_at | dt }}
+  </p>
+
+  {% if post.image_filename %}
+    <img class="post-image" alt="{{ post.title }}"
+         src="{{ url_for('static', filename='uploads/' ~ post.image_filename) }}">
+  {% endif %}
+
+  <div class="markdown-body">{{ post.body | markdown }}</div>
+</article>
+
+<div class="actions">
+  {% if current_user and (current_user.is_admin or current_user.username == post.userid) %}
+    <a class="btn" href="{{ url_for('blog.edit', post_id=post.id) }}">編集</a>
+    <form method="post" action="{{ url_for('blog.delete', post_id=post.id) }}"
+          class="inline-form" onsubmit="return confirm('この記事を削除しますか？');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn danger">削除</button>
+    </form>
+  {% endif %}
+  <a class="btn secondary" href="{{ url_for('blog.index') }}">一覧へ戻る</a>
+</div>
+{% endblock %}
